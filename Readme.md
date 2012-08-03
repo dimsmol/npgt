@@ -44,3 +44,92 @@ For inserts:
 
 For other queries:
 	* rowCount - number of rows affected
+
+## Query construction
+
+`q(client, queryParts, data)` can ease query construction.
+
+* queryParts - string, array of strings or QueryPart objects from which resulting query will be constructed
+* data - dict of data you want to use in query
+
+q() returns pg's query object ready to execute with db.forEach() and other functions.
+q() uses named args (as opposed to pg's client.query()), for example `$arg` refers to data.arg
+
+Example:
+
+```js
+var a = 'abc', b = 3;
+var query = q(client,
+	[
+		'select * from x where true',
+		// use condition only if corresponding variable is not null
+		a == null ? null : ' and a = $a',
+		b == null ? null : ' and b = $b'
+	],
+	{
+		a: a,
+		b: b
+	}
+);
+
+// produces query
+// 'select * from x where true and a = $1 and b = $2'
+// with arguments
+// ['abc', 3]
+```
+
+There is some special syntax for argument names:
+
+* $..someArg will expect data.someArg is an array, expose that array on arguments and produce part of query suitable for usage in sql 'in' clause
+* $.now will expose `new Date()` on arguments and use that argument in query
+
+Example:
+
+```js
+var a = [1, 2, 3];
+var query = q(client,
+	'select * from x where d = $.now and a in $..a',
+	{ a: [1, 2, 3] }
+);
+
+// produces query
+// 'select * from x where d = $1 and a in ($2, $3, $4)'
+// with arguments
+// [_current_date_value_, 1, 2, 3]
+```
+
+$.now is provided by QueryData object used by q() as a datastore by default. You can construct your own version of q() using Query class and your own datastore object inherited from QueryData to provide more predefined expressions like $.now
+
+### q.each()
+
+`q.each(varKey, key, parts, opt_delimiter, opt_prefix, opt_postfix)` can be used to construct more complex expressions for sql 'in' clause.
+
+* varKey - key to be used to provide current argument when constructing query part from parts
+* key - argument name to use as a data source
+* parts - the same meaning as for q() itself
+* opt_delimiter - what delimeter to use between constructed query parts, ', ' by default
+* opt_prefix - what prefix to use before constructed query part
+* opt_postfix - what postfix to use after constructed query part
+
+Example:
+
+```js
+var a = [1, 2, 3];
+var query = q(client,
+	[
+		'select * from x where normalize(tag) in (',
+			q.each('tag', 'tags', 'normalize($tag)'),
+		')'
+	]
+	{ tags: ['tag1', 'tag2', 'tag3'] }
+);
+
+// produces query
+// 'select * from x where normalize(tag) in (normalize($1), normalize($2), normalize($3)'
+// with arguments
+// ['tag1', 'tag2', 'tag3']
+```
+
+Note, that q.each() exposes given argument the same way as $..arg does.
+
+You can use QueryPart as a base class for your own classes incapsulating query parts logic.
