@@ -135,3 +135,7 @@ var query = q(client,
 Note, that q.each() exposes given argument the same way as $..arg does.
 
 You can use QueryPart as a base class for your own classes incapsulating query parts logic.
+
+## tools
+
+* isDuplicateKeyError(dbErr) - returns true if dbErr is duplicate key error (unique constraint violation)
