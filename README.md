@@ -28,7 +28,7 @@ db.execute(pg, connectionString, function (client, cb) {
 * forEach(query, rowHandler, cb) - executes query, then iterates results calling rowHandler(row) on every row, cb result is query result structure (see below)
 * one(query, cb) - executes query, fetches every resulting row and returns the last one, cb result is query result structure (see below). Useful for queries returning one row only.
 * nonQuery(query, cb) - executes non-query, without trying to fetch any results, cb result is query "result" structure (see below)
-* upsert(client, updateCmd, updateArgs, insertCmd, insertArgs, cb) - updates exiting row or inserts if row does not exist, cb result is query result structure (see below)
+* upsert(updateQueryMaker, insertQueryMaker, cb) - updates exiting row or inserts if row does not exist, cb result is query result structure (see below)
 * clauseIn(clause, arr, startIndex) - **DEPRECATED** (use Query instead) generates "in" clause string as "<clause> in ($1, $2, ...)", arguments are:
 	* clause - clause to be used left of "in"
 	* arr - array of values to be used for "in". Actually, values are not used, only arr.length value.
@@ -45,12 +45,14 @@ For inserts:
 For other queries:
 	* rowCount - number of rows affected
 
-## Query construction
+## QueryMaker
 
 `q(client, queryParts, data)` can ease query construction.
 
 * queryParts - string, array of strings or QueryPart objects from which resulting query will be constructed
 * data - dict of data you want to use in query
+
+`qm(client, queryParts, data)` returns QueryMaker instance instead of ready to use query object. Query can be obtained by calling create() method of query maker. Query maker itself used, for example, in upsert() calls (see above).
 
 q() returns pg's query object ready to execute with db.forEach() and other functions.
 q() uses named args (as opposed to pg's client.query()), for example `$arg` refers to data.arg
@@ -98,7 +100,7 @@ var query = q(client,
 // [_current_date_value_, 1, 2, 3]
 ```
 
-$.now is provided by QueryData object used by q() as a datastore by default. You can construct your own version of q() using Query class and your own datastore object inherited from QueryData to provide more predefined expressions like $.now
+$.now is provided by QueryData object used by q() as a datastore by default. You can construct your own version of q() using QueryMaker class and your own datastore object inherited from QueryData to provide more predefined expressions like $.now
 
 ### q.each()
 
