@@ -1,6 +1,6 @@
 ## node.js pg tools
 
-(pg)[https://github.com/brianc/node-postgres] is cool, but it has very callback-unfriendly API. npgt simplifies callback-style pg usage.
+[pg](https://github.com/brianc/node-postgres) is cool, but it has very callback-unfriendly API. npgt simplifies callback-style pg usage.
 
 ## Usage
 
@@ -20,7 +20,7 @@ db.execute(pg, connectionString, function (client, cb) {
 
 ## Methods of db
 
-* execute(pg, connectionString, func, cb) - gets new connection from pool, executes func(client, cb) providing client, disposes client, then calls cb(err, result) callback where "result" is result provided by func. pg argument is (pg)[https://github.com/brianc/node-postgres] module.
+* execute(pg, connectionString, func, cb) - gets new connection from pool, executes func(client, cb) providing client, disposes client, then calls cb(err, result) callback where "result" is result provided by func. pg argument is [pg](https://github.com/brianc/node-postgres) module.
 * fetchAll(options | query, cb) - executes query, then iterates results collecting rows, cb result is Array of fetched rows by default. Options available:
 	* query - query to execute
 	* initialData - initial data structure to use for results collecting, [] by default
