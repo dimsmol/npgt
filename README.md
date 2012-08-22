@@ -1,6 +1,9 @@
-## node.js pg tools
+# node.js pg tools library
 
-[pg](https://github.com/brianc/node-postgres) is cool, but it has very callback-unfriendly API. npgt simplifies callback-style pg usage.
+* Simplifies callback-style usage of [pg](https://github.com/brianc/node-postgres)
+* Provides utilities for results fetching
+* Upsert implementation
+* QueryMaker query construction tool
 
 ## Usage
 
@@ -35,11 +38,13 @@ db.execute(pg, connectionString, function (client, cb) {
 Actually, it belongs to pg but is not well-documented there.
 
 For inserts:
-	* rowCount - number of rows inserted
-	* oid - inserted id
+
+* rowCount - number of rows inserted
+* oid - inserted id
 
 For other queries:
-	* rowCount - number of rows affected
+
+* rowCount - number of rows affected
 
 ## QueryMaker
 
