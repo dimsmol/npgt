@@ -14,8 +14,10 @@ var db = require('npgt').db;
 
 db.execute(pg, connectionString, function (client, cb) {
 	// execute your queries here
-	var result = /* some query result */;
-	cb(null, result);
+	db.fetchAll(q(client, [
+			'select * from mytable where name = $name'
+		],
+		{ name: 'some name' }), cb);
 }, function (err, result) {
 	// client is already disposed here
 });
