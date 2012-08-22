@@ -138,4 +138,4 @@ You can use QueryPart as a base class for your own classes incapsulating query p
 
 ## tools
 
-* isDuplicateKeyError(dbErr) - returns true if dbErr is duplicate key error (unique constraint violation)
+* isUniqueConstraintViolation(dbErr) - returns true if dbErr is unique constraint violation error
