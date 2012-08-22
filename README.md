@@ -29,10 +29,6 @@ db.execute(pg, connectionString, function (client, cb) {
 * one(query, cb) - executes query, fetches every resulting row and returns the last one, cb result is query result structure (see below). Useful for queries returning one row only.
 * nonQuery(query, cb) - executes non-query, without trying to fetch any results, cb result is query "result" structure (see below)
 * upsert(updateQueryMaker, insertQueryMaker, cb) - updates exiting row or inserts if row does not exist, cb result is query result structure (see below)
-* clauseIn(clause, arr, startIndex) - **DEPRECATED** (use Query instead) generates "in" clause string as "<clause> in ($1, $2, ...)", arguments are:
-	* clause - clause to be used left of "in"
-	* arr - array of values to be used for "in". Actually, values are not used, only arr.length value.
-	* startIndex - index to use for first argument name, 1 by default
 
 ## Query result structure
 
