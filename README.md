@@ -55,7 +55,7 @@ For other queries:
 * queryParts - string, array of strings or QueryPart objects from which resulting query will be constructed
 * data - dict of data you want to use in query
 
-`qm(client, queryParts, data)` returns QueryMaker instance instead of ready to use query object. Query can be obtained by calling create() method of query maker. Query maker itself used, for example, in upsert() calls (see above).
+`qm(client, queryParts, data)` returns QueryMaker instance instead of executed query object. Query can be executed by calling query() method of query maker. Query maker itself used, for example, in upsert() calls (see above).
 
 q() returns pg's query object ready to execute with db.forEach() and other functions.
 q() uses named args (as opposed to pg's client.query()), for example `$arg` refers to data.arg
