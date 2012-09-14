@@ -55,7 +55,7 @@ For other queries:
 * queryParts - string, array of strings or QueryPart objects from which resulting query will be constructed
 * data - dict of data you want to use in query
 
-`qm(client, queryParts, data)` returns QueryMaker instance instead of executed query object. Query can be executed by calling query() method of query maker. Query maker itself used, for example, in upsert() calls (see above).
+`q.maker(client, queryParts, data)` returns QueryMaker instance instead of executed query object. Query can be executed by calling query() method of query maker. Query maker itself used, for example, in upsert() calls (see above).
 
 q() returns pg's query object ready to execute with db.forEach() and other functions.
 q() uses named args (as opposed to pg's client.query()), for example `$arg` refers to data.arg
@@ -87,11 +87,12 @@ There is some special syntax for argument names:
 
 * $..someArg will expect data.someArg is an array, expose that array on arguments and produce part of query suitable for usage in sql 'in' clause
 * $.now will expose `new Date()` on arguments and use that argument in query
+* $a.0.b can be used to access data components, e.g. will return '!' if data = `{a: [{b: '!'}]}`
+* name can be optionally surrounded by qurly braces: ${a}, ${.now}
 
 Example:
 
 ```js
-var a = [1, 2, 3];
 var query = q(client,
 	'select * from x where d = $.now and a in $..a',
 	{ a: [1, 2, 3] }
@@ -119,13 +120,12 @@ $.now is provided by QueryData object used by q() as a datastore by default. You
 Example:
 
 ```js
-var a = [1, 2, 3];
 var query = q(client,
 	[
 		'select * from x where normalize(tag) in (',
 			q.each('tag', 'tags', 'normalize($tag)'),
 		')'
-	]
+	],
 	{ tags: ['tag1', 'tag2', 'tag3'] }
 );
 
@@ -138,6 +138,77 @@ var query = q(client,
 Note, that q.each() exposes given argument the same way as $..arg does.
 
 You can use QueryPart as a base class for your own classes incapsulating query parts logic.
+
+### q.insFields()
+
+`q.insFields(fields)` generates list of fields for insert statement.
+
+See alse q.insVars().
+
+### q.insVars()
+
+`q.insVars(fields, opt_count, opt_options)` generates list of vars for insert statement.
+
+opt_count and opt_options can be used to insert several rows at once.
+
+Options available:
+
+* start - from which index to start
+* prefix - prefix to use for generated variables
+* startWith - ready fields for every row to start with
+
+Single row example:
+
+```js
+var data = {a: 1, b: 2};
+var fields = Objects.keys(data);
+var query = q(client,
+	[
+		'insert into x (', q.insFields(fields), ')',
+		'values (', q.insVars(fields), ')'
+	], data);
+
+// produces query
+// 'insert into x (a, b) values ($1, $2)'
+// with arguments
+// [1, 2]
+```
+
+Multiple rows example:
+
+```js
+var data = [{a: 1, b: 2}, {a: 3, b: 4}];
+var fields = Objects.keys(data[0]);
+var query = q(client,
+	[
+		'insert into x (created, ', q.insFields(fields), ')',
+		'values (', q.insVars(fields, data.length, {startWith: '$.now'}), ')'
+	], data);
+
+// produces query
+// 'insert into x (created, a, b) values ($1, $2, $3), ($1, $4, $5)'
+// with arguments
+// [_current_date_value_, 1, 2, 3, 4]
+```
+
+### q.upd(data)
+
+Generates 'field = var' pairs for update statement.
+
+Example:
+
+```js
+var data = {a: 1, b: 2};
+var query = q(client,
+	[
+		'update x set ', q.upd(data), ' where a > 0'
+	], data);
+
+// produces query
+// 'update x set a = $1, b = $2 where a > 0'
+// with arguments
+// [1, 2]
+```
 
 ## tools
 
