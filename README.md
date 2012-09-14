@@ -161,7 +161,7 @@ Single row example:
 
 ```js
 var data = {a: 1, b: 2};
-var fields = Objects.keys(data);
+var fields = Object.keys(data);
 var query = q(client,
 	[
 		'insert into x (', q.insFields(fields), ')',
@@ -178,7 +178,7 @@ Multiple rows example:
 
 ```js
 var data = [{a: 1, b: 2}, {a: 3, b: 4}];
-var fields = Objects.keys(data[0]);
+var fields = Object.keys(data[0]);
 var query = q(client,
 	[
 		'insert into x (created, ', q.insFields(fields), ')',
