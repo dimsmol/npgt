@@ -190,7 +190,7 @@ var query = q(client,
 // [_current_date_value_, 1, 2, 3, 4]
 ```
 
-### q.upd(data)
+### q.upd(fields)
 
 Generates 'field = var' pairs for update statement.
 
@@ -200,7 +200,7 @@ Example:
 var data = {a: 1, b: 2};
 var query = q(client,
 	[
-		'update x set ', q.upd(data), ' where a > 0'
+		'update x set ', q.upd(Object.keys(data)), ' where a > 0'
 	], data);
 
 // produces query
