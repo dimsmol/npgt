@@ -29,10 +29,18 @@ db.execute(connectionString, function (client, cb) {
 	* query - query to execute
 	* initialData - initial data structure to use for results collecting, [] by default
 	* collect(row, data) - function to collect results, data.push(row) by default
-* forEach(query, rowHandler, cb) - executes query, then iterates results calling rowHandler(row) on every row, cb result is query result structure (see below)
-* one(query, cb) - executes query, fetches every resulting row and returns the last one, cb result is query result structure (see below). Useful for queries returning one row only.
+	* collectIsSafe - when false, collect() calls will be surrounded be try-catch block, false by default
+* one(options | query, cb) - executes query, fetches every resulting row and returns the last one, cb result is query result structure (see below). Useful for queries returning one row only.. Options available:
+	* query - query to execute
+	* transform(row) - function to transform results, null by default (not applied)
 * nonQuery(query, cb) - executes non-query, without trying to fetch any results, cb result is query "result" structure (see below)
 * upsert(updateQueryMaker, insertQueryMaker, cb) - updates exiting row or inserts if row does not exist, cb result is query result structure (see below)
+
+Lowlevel methods:
+
+* executeQuery(query, rowHandler, cb) - executes query, then iterates results calling rowHandler(row) on every row if rowHandler is not null, cb result is query result structure (see below)
+* forEach(query, rowHandler, cb) - alias for executeQuery()
+
 
 ## Query result structure
 
