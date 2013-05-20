@@ -32,12 +32,12 @@ db.execute(connectionString, function (client, cb) {
 		* collect(row, data, ctx) - function to collect results, data.push(row) by default
 		* transform(row, ctx) - function to transform results, null by default (not applied)
 		* transformResult(data, ctx) - function to transform result data, null by default (not applied)
-	* cb(err, data, ctx) - where data are transformed by transformResult() if specified
+	* cb(err, data) - where resulting data are transformed by transformResult() if specified
 * one(options | query, cb) - executes query, fetches every resulting row and returns the last one, cb result is query result structure (see below). Useful for queries returning one row only.
 	* options available:
 		* query - query to execute
 		* transform(row, ctx) - function to transform result data, null by default (not applied)
-	* cb(err, row, ctx) - where row is transformed by transform() if specified
+	* cb(err, row) - where resulting row is transformed by transform() if specified
 * nonQuery(query, cb) - executes non-query, without trying to fetch any results, cb result is query "result" structure (see below)
 * upsert(options, cb) - updates exiting row or inserts if row does not exist
 	* options available:
@@ -48,7 +48,7 @@ db.execute(connectionString, function (client, cb) {
 		* insertFirst - first try to insert, then update
 		* nonQuery - ignore any resulting rows when true, false by default
 	* cb signature by default expects queries may return rows:
-		* cb(err, row, ctx) - where row is transformed by transform() if specified
+		* cb(err, row) - where resulting row is transformed by transform() if specified
 	* cb signature for nonQuery:
 		* cb(err, result) where result is query result structure (see below)
 * upsert(updateQueryMaker, insertQueryMaker, cb) - deprecated, old variant of upsert()
