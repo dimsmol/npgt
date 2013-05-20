@@ -24,12 +24,22 @@ db.execute(connectionString, function (client, cb) {
 
 ## Methods of db
 
+db connect:
+
 * execute(connectionString, func, cb) - gets new connection from pool, executes func(client, cb) providing client, disposes client, then calls cb(err, result) callback where "result" is result provided by func.
+
+Transactions:
+
+Note, that all these methods are calling cb() with no result argument.
+
 * begin(client, cb) - begins transaction
 * commit(client, cb) - transaction rollback
 * rollback(client, cb) - transaction commit
 * savepoint(client, savepoint, cb) - set transaction savepoint
 * rollbackTo(client, savepoint, cb) - rollback transaction to savepoint
+
+Queries:
+
 * fetchAll(options | query, cb) - executes query, then iterates results collecting rows, cb result is Array of fetched rows by default
 	* options available:
 		* query - query to execute
@@ -44,6 +54,7 @@ db.execute(connectionString, function (client, cb) {
 		* transform(row, queryCtx) - function to transform result data, null by default (not applied)
 	* cb(err, row) - where resulting row is transformed by transform() if specified
 * nonQuery(query, cb) - executes non-query, without trying to fetch any results, cb result is query "result" structure (see below)
+* nonQueryVoid(query, cb) - same as nonQuery(), but it's cb has no result argument
 * upsert(options, cb) - updates exiting row or inserts if row does not exist
 	* options available:
 		* update - update query maker, required
