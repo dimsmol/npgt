@@ -30,11 +30,17 @@ db connect:
 
 Transactions:
 
+* transaction(client, f, cb) - executes f in transaction context, automatically does rollback on error and commit on success if not already done by f()
+	* f(tran, cb)
+		* tran is Transaction class instance (see below), to work correctly, f() must call commit() and rollback() methods on tran instead of db
+
+Transactions lowlevel:
+
 Note, that all these methods are calling cb() with no result argument.
 
 * begin(client, cb) - begins transaction
-* commit(client, cb) - transaction rollback
-* rollback(client, cb) - transaction commit
+* commit(client, cb) - transaction commit
+* rollback(client, cb) - transaction rollback
 * savepoint(client, savepoint, cb) - set transaction savepoint
 * rollbackTo(client, savepoint, cb) - rollback transaction to savepoint
 
@@ -73,6 +79,15 @@ Lowlevel methods:
 
 * executeQuery(query, rowHandler, cb) - executes query, then iterates results calling rowHandler(row) on every row if rowHandler is not null, cb result is query result structure (see below)
 * forEach(query, rowHandler, cb) - alias for executeQuery()
+
+## Transaction
+
+Methods:
+
+* commit(cb) - transaction commit
+* rollback(cb) - transaction rollback
+* savepoint(savepoint, cb) - set transaction savepoint
+* rollbackTo(savepoint, cb) - rollback transaction to savepoint
 
 ## QueryCtx
 
