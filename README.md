@@ -25,21 +25,47 @@ db.execute(connectionString, function (client, cb) {
 ## Methods of db
 
 * execute(connectionString, func, cb) - gets new connection from pool, executes func(client, cb) providing client, disposes client, then calls cb(err, result) callback where "result" is result provided by func.
-* fetchAll(options | query, cb) - executes query, then iterates results collecting rows, cb result is Array of fetched rows by default. Options available:
-	* query - query to execute
-	* initialData - initial data structure to use for results collecting, [] by default
-	* collect(row, data) - function to collect results, data.push(row) by default
-	* collectIsSafe - when false, collect() calls will be surrounded be try-catch block, false by default
-* one(options | query, cb) - executes query, fetches every resulting row and returns the last one, cb result is query result structure (see below). Useful for queries returning one row only.. Options available:
-	* query - query to execute
-	* transform(row) - function to transform results, null by default (not applied)
+* fetchAll(options | query, cb) - executes query, then iterates results collecting rows, cb result is Array of fetched rows by default
+	* options available:
+		* query - query to execute
+		* initialData - initial data structure to use for results collecting, [] by default
+		* collect(row, data, ctx) - function to collect results, data.push(row) by default
+		* transform(row, ctx) - function to transform results, null by default (not applied)
+		* transformResult(data, ctx) - function to transform result data, null by default (not applied)
+	* cb(err, data, ctx) - where data are transformed by transformResult() if specified
+* one(options | query, cb) - executes query, fetches every resulting row and returns the last one, cb result is query result structure (see below). Useful for queries returning one row only.
+	* options available:
+		* query - query to execute
+		* transform(row, ctx) - function to transform result data, null by default (not applied)
+	* cb(err, row, ctx) - where row is transformed by transform() if specified
 * nonQuery(query, cb) - executes non-query, without trying to fetch any results, cb result is query "result" structure (see below)
-* upsert(updateQueryMaker, insertQueryMaker, cb) - updates exiting row or inserts if row does not exist, cb result is query result structure (see below)
+* upsert(options, cb) - updates exiting row or inserts if row does not exist
+	* options available:
+		* update - update query maker, required
+		* insert - update query maker, required
+		* maxUpdateAttemptsCount - how many update attempts can be performed, 2 by default
+		* transform(row, ctx) - function to transform result data, null by default (not applied)
+		* insertFirst - first try to insert, then update
+		* nonQuery - ignore any resulting rows when true, false by default
+	* cb signature by default expects queries may return rows:
+		* cb(err, row, ctx) - where row is transformed by transform() if specified
+	* cb signature for nonQuery:
+		* cb(err, result) where result is query result structure (see below)
+* upsert(updateQueryMaker, insertQueryMaker, cb) - deprecated, old variant of upsert()
 
 Lowlevel methods:
 
 * executeQuery(query, rowHandler, cb) - executes query, then iterates results calling rowHandler(row) on every row if rowHandler is not null, cb result is query result structure (see below)
 * forEach(query, rowHandler, cb) - alias for executeQuery()
+
+Regarding ctx:
+
+* ctx is an object with following properties and methods:
+	* query - query object reference
+	* data - current data
+	* result - result as returned by pg, only available on transformResult() and cb() call
+	* error(err) - sets execution error, data processing will be stopped, error provided will be passed to cb()
+	* getError() - gets current execution error
 
 
 ## Query result structure
