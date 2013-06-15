@@ -2,16 +2,18 @@
 
 * Simplifies callback-style usage of [pg](https://github.com/brianc/node-postgres)
 * Provides utilities for results fetching
+* Transactions support
 * Upsert implementation
 * QueryMaker query construction tool
 
 ## Usage
 
 ```js
+var pg = require('pg');
 var db = require('npgt').db;
 
 
-db.execute(connectionString, function (client, cb) {
+db.execute(pg, connectionString, function (client, cb) {
 	// execute your queries here
 	db.fetchAll(q(client, [
 			'select * from mytable where name = $name'
@@ -26,7 +28,9 @@ db.execute(connectionString, function (client, cb) {
 
 db connect:
 
-* execute(connectionString, func, cb) - gets new connection from pool, executes func(client, cb) providing client, disposes client, then calls cb(err, result) callback where "result" is result provided by func.
+* execute(pg, config, func, cb) - gets new connection from pool, executes func(client, cb) providing client, disposes client, then calls cb(err, result) callback where "result" is result provided by func
+	* pg argument is [pg](https://github.com/brianc/node-postgres)
+	* config argument will be passed as is to pg.connect()
 
 Transactions:
 
@@ -79,6 +83,32 @@ Lowlevel methods:
 
 * executeQuery(query, rowHandler, cb) - executes query, then iterates results calling rowHandler(row) on every row if rowHandler is not null, cb result is query result structure (see below)
 * forEach(query, rowHandler, cb) - alias for executeQuery()
+
+## DbConnector
+
+Helper object incapsulating db settings and connection functionality.
+
+Methods:
+
+* init(pg, config) - init instance with given reference to [pg](https://github.com/brianc/node-postgres) and config to be used with pg.connect(), returns instance itself
+* execute(f, cb) - same as db.execute(), but will use pg and config earlier given to init()
+* tranExecute(tran, f, cb) - if tran is null, performs db.execute() with enclosed db.transaction(), else just calls f(tran, cb)
+	* useful for functions that must create their own transaction if called standalone, but must use existing transaction if provided
+
+Example:
+
+```js
+var pg = require('pg');
+var DbConnector = require('npgt').DbConnector;
+
+var dbc = new DbConnector().init(pg, connectionString);
+
+dbc.execute(function (client, cb) {
+	// execute your queries here
+}, function (err, result) {
+	// client is already disposed here
+});
+```
 
 ## Transaction
 
