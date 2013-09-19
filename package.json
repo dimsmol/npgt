@@ -10,6 +10,7 @@
 	"preferGlobal": false,
 	"private": false,
 	"dependencies": {
+		"marked_types": "~0.0.1",
 		"pg": "~0.8.4"
 	},
 	"engines": {
