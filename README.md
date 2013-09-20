@@ -310,3 +310,7 @@ var query = q(client,
 ## tools
 
 * isUniqueConstraintViolation(dbErr) - returns true if dbErr is unique constraint violation error
+
+## License
+
+MIT
